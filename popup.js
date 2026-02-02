@@ -82,8 +82,20 @@ async function loadStats() {
   chrome.runtime.sendMessage(
     { action: 'getStats' },
     (stats) => {
+      // Check for Chrome runtime errors
+      if (chrome.runtime.lastError) {
+        console.error('Chrome runtime error:', chrome.runtime.lastError.message);
+        document.getElementById('todayTime').textContent = 'Error';
+        document.getElementById('echoMessage').innerHTML = 
+          '<p>⚠️ Unable to connect to background worker. Try reloading the extension.</p>';
+        return;
+      }
+      
       if (!stats) {
-        console.error('Failed to load stats');
+        console.error('Failed to load stats - no response from background');
+        document.getElementById('todayTime').textContent = 'Error';
+        document.getElementById('echoMessage').innerHTML = 
+          '<p>⚠️ No data available. Try reloading the extension.</p>';
         return;
       }
       
@@ -121,9 +133,19 @@ document.getElementById('trackingToggle').addEventListener('change', (e) => {
   chrome.runtime.sendMessage(
     { action: 'toggleTracking', enabled },
     (response) => {
-      if (response.success) {
+      if (chrome.runtime.lastError) {
+        console.error('Error toggling tracking:', chrome.runtime.lastError.message);
+        alert('Failed to toggle tracking. Try reloading the extension.');
+        e.target.checked = !enabled; // Revert toggle
+        return;
+      }
+      
+      if (response && response.success) {
         console.log('Tracking changed to:', enabled);
         loadStats();
+      } else {
+        console.error('Failed to toggle tracking');
+        e.target.checked = !enabled; // Revert toggle
       }
     }
   );
@@ -144,8 +166,17 @@ document.getElementById('resetBtn').addEventListener('click', () => {
     chrome.runtime.sendMessage(
       { action: 'resetData' },
       (response) => {
-        if (response.success) {
+        if (chrome.runtime.lastError) {
+          console.error('Error resetting data:', chrome.runtime.lastError.message);
+          alert('Failed to reset data. Try reloading the extension.');
+          return;
+        }
+        
+        if (response && response.success) {
           loadStats();
+        } else {
+          console.error('Failed to reset data');
+          alert('Failed to reset data.');
         }
       }
     );

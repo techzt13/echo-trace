@@ -20,6 +20,11 @@ async function loadAndRenderStats() {
   chrome.runtime.sendMessage(
     { action: 'getStats' },
     (response) => {
+      if (chrome.runtime.lastError) {
+        console.error('Chrome runtime error:', chrome.runtime.lastError.message);
+        return;
+      }
+      
       if (response) {
         currentStats = response;
         console.log('Dashboard loaded stats, tracking enabled:', response.enabled);
@@ -362,9 +367,18 @@ document.getElementById('trackingToggle').addEventListener('change', async (e) =
   chrome.runtime.sendMessage(
     { action: 'toggleTracking', enabled },
     (response) => {
-      if (response.success) {
+      if (chrome.runtime.lastError) {
+        console.error('Error toggling tracking:', chrome.runtime.lastError.message);
+        e.target.checked = !enabled; // Revert toggle
+        return;
+      }
+      
+      if (response && response.success) {
         currentStats.enabled = response.enabled;
         console.log('Tracking toggled:', enabled);
+      } else {
+        console.error('Failed to toggle tracking');
+        e.target.checked = !enabled; // Revert toggle
       }
     }
   );
@@ -378,7 +392,13 @@ document.getElementById('resetBtn').addEventListener('click', async () => {
     chrome.runtime.sendMessage(
       { action: 'resetData' },
       (response) => {
-        if (response.success) {
+        if (chrome.runtime.lastError) {
+          console.error('Error resetting data:', chrome.runtime.lastError.message);
+          alert('Failed to reset data. Try reloading the extension.');
+          return;
+        }
+        
+        if (response && response.success) {
           currentStats = {
             dailyStats: {},
             totalByDomain: {},
@@ -386,6 +406,9 @@ document.getElementById('resetBtn').addEventListener('click', async () => {
             enabled: currentStats.enabled,
           };
           renderDashboard();
+        } else {
+          console.error('Failed to reset data');
+          alert('Failed to reset data.');
         }
       }
     );

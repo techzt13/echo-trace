@@ -227,37 +227,49 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 /**
  * Listen for tracking toggle from popup/newtab
  */
-chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
-  if (request.action === 'toggleTracking') {
-    trackingState.enabled = request.enabled;
-    await chrome.storage.local.set({ enabled: request.enabled });
-    
-    if (!request.enabled) {
-      // Stop current session
-      await flushCurrentSession();
-      trackingState.sessionStart = null;
-    } else {
-      // Start tracking from now
-      if (trackingState.currentDomain) {
-        trackingState.sessionStart = Date.now();
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  // Handle async operations properly
+  (async () => {
+    try {
+      if (request.action === 'toggleTracking') {
+        trackingState.enabled = request.enabled;
+        await chrome.storage.local.set({ enabled: request.enabled });
+        
+        if (!request.enabled) {
+          // Stop current session
+          await flushCurrentSession();
+          trackingState.sessionStart = null;
+        } else {
+          // Start tracking from now
+          if (trackingState.currentDomain) {
+            trackingState.sessionStart = Date.now();
+          }
+        }
+        
+        console.log('Tracking toggled:', request.enabled);
+        sendResponse({ success: true, enabled: trackingState.enabled });
+      } else if (request.action === 'getStats') {
+        const data = await chrome.storage.local.get(['dailyStats', 'totalByDomain', 'totalByCategory', 'enabled']);
+        console.log('Sending stats to popup/dashboard:', data);
+        sendResponse(data);
+      } else if (request.action === 'resetData') {
+        await chrome.storage.local.set({
+          enabled: trackingState.enabled,
+          dailyStats: {},
+          totalByDomain: {},
+          totalByCategory: {},
+        });
+        console.log('Data reset');
+        sendResponse({ success: true });
       }
+    } catch (error) {
+      console.error('Error handling message:', request.action, error);
+      sendResponse({ error: error.message });
     }
-    
-    console.log('Tracking toggled:', request.enabled);
-    sendResponse({ success: true, enabled: trackingState.enabled });
-  } else if (request.action === 'getStats') {
-    const data = await chrome.storage.local.get(['dailyStats', 'totalByDomain', 'totalByCategory', 'enabled']);
-    sendResponse(data);
-  } else if (request.action === 'resetData') {
-    await chrome.storage.local.set({
-      enabled: trackingState.enabled,
-      dailyStats: {},
-      totalByDomain: {},
-      totalByCategory: {},
-    });
-    console.log('Data reset');
-    sendResponse({ success: true });
-  }
+  })();
+  
+  // Return true to indicate we'll send response asynchronously
+  return true;
 });
 
 /**
