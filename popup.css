@@ -1,0 +1,248 @@
+/**
+ * EchoTrace Popup Styles
+ */
+
+:root {
+  --primary-color: #45B7D1;
+  --secondary-color: #F7DC6F;
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F5F7FA;
+  --text-primary: #2C3E50;
+  --text-secondary: #7F8C8D;
+  --border-color: #ECF0F1;
+  --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary-color: #5DADE2;
+    --secondary-color: #F39C12;
+    --bg-primary: #1A1A1A;
+    --bg-secondary: #2D2D2D;
+    --text-primary: #ECF0F1;
+    --text-secondary: #BDC3C7;
+    --border-color: #424242;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  width: 400px;
+  transition: all 0.3s;
+}
+
+.popup-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+}
+
+/* Header */
+.popup-header {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #2E8BA3 100%);
+  color: white;
+  padding: 20px;
+  text-align: center;
+  box-shadow: var(--shadow-light);
+}
+
+.popup-header h1 {
+  font-size: 1.5rem;
+  margin-bottom: 3px;
+}
+
+.popup-header p {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+/* Privacy Notice */
+.privacy-notice {
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  padding: 10px 15px;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Tracking Section */
+.tracking-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.toggle-container {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.toggle-container input[type="checkbox"] {
+  display: none;
+}
+
+.toggle-slider {
+  width: 50px;
+  height: 26px;
+  background-color: #CCC;
+  border-radius: 13px;
+  transition: background-color 0.3s;
+  position: relative;
+}
+
+.toggle-slider::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  transition: left 0.3s;
+}
+
+.toggle-container input[type="checkbox"]:checked + .toggle-slider {
+  background-color: var(--primary-color);
+}
+
+.toggle-container input[type="checkbox"]:checked + .toggle-slider::after {
+  left: 27px;
+}
+
+.toggle-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+/* Stats Section */
+.stats-section {
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.stats-section h2 {
+  font-size: 1rem;
+  margin-bottom: 15px;
+  color: var(--text-primary);
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.stat-row:last-child {
+  border-bottom: none;
+}
+
+.stat-label {
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.stat-value {
+  color: var(--primary-color);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* Echo Section */
+.echo-section {
+  padding: 20px;
+  background-color: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  flex: 1;
+  min-height: 80px;
+}
+
+.echo-message {
+  padding: 15px;
+  background-color: var(--bg-primary);
+  border-left: 4px solid var(--primary-color);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.echo-message p {
+  margin: 0;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 10px;
+  padding: 15px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.9rem;
+  min-width: 140px;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-light);
+}
+
+.btn-secondary {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--border-color);
+}
+
+/* Footer */
+.popup-footer {
+  text-align: center;
+  padding: 10px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+}
+
+.popup-footer p {
+  margin: 0;
+}

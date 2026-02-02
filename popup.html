@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EchoTrace</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="popup-header">
+      <h1>🔄 EchoTrace</h1>
+      <p>Habit Echo Simulator</p>
+    </header>
+
+    <!-- Privacy Notice -->
+    <div class="privacy-notice">
+      🔒 100% Local • No Data Leaves Your Device
+    </div>
+
+    <!-- Tracking Toggle -->
+    <div class="tracking-section">
+      <label class="toggle-container">
+        <input type="checkbox" id="trackingToggle">
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="toggle-label">Enable Tracking</span>
+    </div>
+
+    <!-- Today's Stats -->
+    <section class="stats-section">
+      <h2>Today's Activity</h2>
+      
+      <div class="stat-row">
+        <span class="stat-label">Total Time:</span>
+        <span class="stat-value" id="todayTime">0m</span>
+      </div>
+      
+      <div class="stat-row">
+        <span class="stat-label">Top Category:</span>
+        <span class="stat-value" id="topCategory">—</span>
+      </div>
+      
+      <div class="stat-row">
+        <span class="stat-label">Top Site:</span>
+        <span class="stat-value" id="topSite">—</span>
+      </div>
+    </section>
+
+    <!-- Quick Echo -->
+    <section class="echo-section">
+      <div id="echoMessage" class="echo-message">
+        <p>Start tracking to see projections</p>
+      </div>
+    </section>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button id="dashboardBtn" class="btn btn-primary">📊 Full Dashboard</button>
+      <button id="resetBtn" class="btn btn-secondary">Reset Data</button>
+    </div>
+
+    <!-- Footer -->
+    <footer class="popup-footer">
+      <p>v1.0 • Privacy-first tracking</p>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

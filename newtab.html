@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EchoTrace Dashboard</title>
+  <link rel="stylesheet" href="newtab.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <h1>🔄 EchoTrace Dashboard</h1>
+        <p class="privacy-badge">🔒 100% Local • No Data Leaves Your Device</p>
+      </div>
+      <div class="header-actions">
+        <label class="toggle-container">
+          <input type="checkbox" id="trackingToggle">
+          <span class="toggle-slider"></span>
+          <span class="toggle-label">Tracking</span>
+        </label>
+        <button id="resetBtn" class="btn btn-secondary">Reset Data</button>
+        <button id="exportBtn" class="btn btn-secondary">Export JSON</button>
+      </div>
+    </header>
+
+    <!-- Stats Overview -->
+    <section class="stats-overview">
+      <div class="stat-card">
+        <div class="stat-value" id="todayTotal">0m</div>
+        <div class="stat-label">Today's Total</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="weekTotal">0m</div>
+        <div class="stat-label">This Week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="topCategory">—</div>
+        <div class="stat-label">Top Category</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="topDomain">—</div>
+        <div class="stat-label">Most Visited</div>
+      </div>
+    </section>
+
+    <!-- Charts Section -->
+    <section class="charts-section">
+      <div class="chart-container">
+        <h2>Time by Category (Today)</h2>
+        <canvas id="categoryChart"></canvas>
+      </div>
+      
+      <div class="chart-container">
+        <h2>Weekly Breakdown</h2>
+        <canvas id="weeklyChart"></canvas>
+      </div>
+    </section>
+
+    <!-- Top Sites -->
+    <section class="top-sites">
+      <h2>📊 Top Sites This Week</h2>
+      <div id="topSitesContainer" class="sites-list">
+        <p class="empty-state">No data yet. Enable tracking to get started!</p>
+      </div>
+    </section>
+
+    <!-- Future Echo Section -->
+    <section class="future-echo">
+      <div class="echo-card">
+        <div class="echo-header">
+          <h2>🚀 Your Future Echo</h2>
+          <p class="echo-subtitle">If current habits continue for 90 days...</p>
+        </div>
+        
+        <div id="echoContent" class="echo-content">
+          <p class="empty-state">Enable tracking to see future projections</p>
+        </div>
+
+        <div class="echo-tips">
+          <h3>💡 Productivity Tips</h3>
+          <ul>
+            <li>Try the Pomodoro Technique: 25 min focus + 5 min break</li>
+            <li>Set daily time budgets for social media</li>
+            <li>Use website blockers during focus time</li>
+            <li>Take regular breaks to reduce eye strain</li>
+            <li>Plan your day with time blocks for different activities</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>EchoTrace v1.0 • Privacy-first browser habit tracker • Made with ❤️</p>
+    </footer>
+  </div>
+
+  <script src="newtab.js"></script>
+</body>
+</html>

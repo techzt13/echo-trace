@@ -1,0 +1,29 @@
+<!--
+  EchoTrace Icon - 128x128
+  Simple clock with echo ripple
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#45B7D1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2E8BA3;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#grad)" rx="16"/>
+  
+  <!-- Outer ripple effect -->
+  <circle cx="64" cy="64" r="52" fill="none" stroke="white" stroke-width="1.5" opacity="0.2"/>
+  <circle cx="64" cy="64" r="60" fill="none" stroke="white" stroke-width="1" opacity="0.1"/>
+  
+  <!-- Clock circle -->
+  <circle cx="64" cy="64" r="40" fill="none" stroke="white" stroke-width="4"/>
+  
+  <!-- Clock hands -->
+  <path d="M64 32v40l20 12" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Center dot -->
+  <circle cx="64" cy="64" r="6" fill="white"/>
+  
+  <!-- Hour markers -->
+  <text x="64" y="28" font-size="16" font-weight="bold" text-anchor="middle" fill="white">12</text>
+</svg>
