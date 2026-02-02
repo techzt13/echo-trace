@@ -26,11 +26,16 @@ async function loadAndRenderStats() {
       }
       
       if (response) {
+        console.log('Dashboard received stats from background:', {
+          enabled: response.enabled,
+          hasDailyStats: !!response.dailyStats,
+          hasTotalByDomain: !!response.totalByDomain,
+          hasTotalByCategory: !!response.totalByCategory
+        });
         currentStats = response;
-        console.log('Dashboard loaded stats, tracking enabled:', response.enabled);
         renderDashboard();
       } else {
-        console.error('Failed to load stats from background worker');
+        console.error('Failed to load stats from background worker - no response');
       }
     }
   );
@@ -113,6 +118,8 @@ function renderStats() {
   document.getElementById('weekTotal').textContent = formatTime(weekTotal);
   document.getElementById('topCategory').textContent = getTopCategory();
   document.getElementById('topDomain').textContent = getTopDomain();
+  
+  console.log('Stats rendered - Today:', formatTime(todayTotal), 'Week:', formatTime(weekTotal));
 }
 
 /**
@@ -356,7 +363,7 @@ function updateTrackingToggle() {
   const toggle = document.getElementById('trackingToggle');
   const isEnabled = currentStats.enabled === true;
   toggle.checked = isEnabled;
-  console.log('Dashboard tracking state:', isEnabled);
+  console.log('Dashboard tracking toggle updated to:', isEnabled, '(raw value:', currentStats.enabled, ')');
 }
 
 /**
@@ -445,8 +452,12 @@ function renderDashboard() {
  * Initialize on page load
  */
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('Dashboard loaded, fetching initial stats...');
   loadAndRenderStats();
   
   // Refresh stats every 5 seconds
-  setInterval(loadAndRenderStats, 5000);
+  setInterval(() => {
+    console.log('Auto-refreshing stats...');
+    loadAndRenderStats();
+  }, 5000);
 });

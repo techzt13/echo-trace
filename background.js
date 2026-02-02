@@ -61,8 +61,20 @@ async function initializeStorage() {
  * Extract domain from URL
  */
 function extractDomain(url) {
+  if (!url) return null;
+  
   try {
     const urlObj = new URL(url);
+    
+    // Ignore chrome://, chrome-extension://, and other internal URLs
+    if (urlObj.protocol === 'chrome:' || 
+        urlObj.protocol === 'chrome-extension:' || 
+        urlObj.protocol === 'about:' ||
+        urlObj.protocol === 'edge:' ||
+        urlObj.protocol === 'brave:') {
+      return null;
+    }
+    
     return urlObj.hostname.replace('www.', '');
   } catch (e) {
     return null;
@@ -156,9 +168,15 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
   const tab = await chrome.tabs.get(activeInfo.tabId);
   trackingState.currentTab = activeInfo.tabId;
   trackingState.currentDomain = extractDomain(tab.url);
-  trackingState.sessionStart = Date.now();
   
-  console.log('Tab activated:', trackingState.currentDomain);
+  // Only start session if it's a trackable domain
+  if (trackingState.currentDomain) {
+    trackingState.sessionStart = Date.now();
+    console.log('Tab activated:', trackingState.currentDomain);
+  } else {
+    trackingState.sessionStart = null;
+    console.log('Tab activated: non-trackable URL (chrome:// or extension)');
+  }
 });
 
 /**
@@ -171,8 +189,15 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     // URL changed, flush and start new session
     await flushCurrentSession();
     trackingState.currentDomain = extractDomain(tab.url);
-    trackingState.sessionStart = Date.now();
-    console.log('Tab URL updated:', trackingState.currentDomain);
+    
+    // Only start session if it's a trackable domain
+    if (trackingState.currentDomain) {
+      trackingState.sessionStart = Date.now();
+      console.log('Tab URL updated:', trackingState.currentDomain);
+    } else {
+      trackingState.sessionStart = null;
+      console.log('Tab URL updated: non-trackable URL (chrome:// or extension)');
+    }
   }
 });
 
@@ -250,7 +275,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         sendResponse({ success: true, enabled: trackingState.enabled });
       } else if (request.action === 'getStats') {
         const data = await chrome.storage.local.get(['dailyStats', 'totalByDomain', 'totalByCategory', 'enabled']);
-        console.log('Sending stats to popup/dashboard:', data);
+        console.log('Background sending stats to client:', {
+          enabled: data.enabled,
+          hasDailyStats: !!data.dailyStats,
+          dailyStatsKeys: data.dailyStats ? Object.keys(data.dailyStats).length : 0,
+          totalDomains: data.totalByDomain ? Object.keys(data.totalByDomain).length : 0,
+          totalCategories: data.totalByCategory ? Object.keys(data.totalByCategory).length : 0
+        });
         sendResponse(data);
       } else if (request.action === 'resetData') {
         await chrome.storage.local.set({
