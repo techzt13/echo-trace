@@ -82,7 +82,10 @@ async function loadStats() {
   chrome.runtime.sendMessage(
     { action: 'getStats' },
     (stats) => {
-      if (!stats) return;
+      if (!stats) {
+        console.error('Failed to load stats');
+        return;
+      }
       
       // Update today's time
       const todayTime = getTodayTotal(stats);
@@ -102,8 +105,10 @@ async function loadStats() {
       document.getElementById('echoMessage').innerHTML = 
         `<p>${getQuickEcho(stats)}</p>`;
       
-      // Update tracking toggle
-      document.getElementById('trackingToggle').checked = stats.enabled;
+      // Update tracking toggle - use strict boolean check
+      const isEnabled = stats.enabled === true;
+      document.getElementById('trackingToggle').checked = isEnabled;
+      console.log('Loaded tracking state:', isEnabled);
     }
   );
 }

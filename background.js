@@ -26,12 +26,12 @@ let trackingState = {
 chrome.runtime.onInstalled.addListener(async () => {
   console.log('EchoTrace installed');
   
-  // Load initial state from storage
-  const data = await chrome.storage.local.get(['enabled']);
-  trackingState.enabled = data.enabled || false;
-  
-  // Initialize storage structure if needed
+  // Initialize storage structure (won't overwrite existing enabled state)
   await initializeStorage();
+  
+  // Load current state
+  const data = await chrome.storage.local.get(['enabled']);
+  trackingState.enabled = data.enabled ?? false;
   
   // Create periodic alarm for background updates
   await chrome.alarms.create('processStats', { periodInMinutes: 5 });
@@ -43,14 +43,17 @@ chrome.runtime.onInstalled.addListener(async () => {
 async function initializeStorage() {
   const data = await chrome.storage.local.get(null);
   
-  if (!data.dailyStats) {
-    await chrome.storage.local.set({
-      enabled: false,
-      dailyStats: {},
-      totalByDomain: {},
-      totalByCategory: {},
-      sessionHistory: [],
-    });
+  // Only initialize missing fields, don't overwrite existing ones
+  const updates = {};
+  
+  if (data.enabled === undefined) updates.enabled = false;
+  if (!data.dailyStats) updates.dailyStats = {};
+  if (!data.totalByDomain) updates.totalByDomain = {};
+  if (!data.totalByCategory) updates.totalByCategory = {};
+  if (!data.sessionHistory) updates.sessionHistory = [];
+  
+  if (Object.keys(updates).length > 0) {
+    await chrome.storage.local.set(updates);
   }
 }
 
@@ -263,6 +266,22 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
 (async () => {
   await initializeStorage();
   const data = await chrome.storage.local.get(['enabled']);
-  trackingState.enabled = data.enabled || false;
+  trackingState.enabled = data.enabled ?? false;
+  
+  // If tracking is enabled, start monitoring current tab
+  if (trackingState.enabled) {
+    try {
+      const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (activeTab) {
+        trackingState.currentTab = activeTab.id;
+        trackingState.currentDomain = extractDomain(activeTab.url);
+        trackingState.sessionStart = Date.now();
+        console.log('Service worker initialized with tracking ON, monitoring:', trackingState.currentDomain);
+      }
+    } catch (e) {
+      console.log('Could not get active tab on startup:', e);
+    }
+  }
+  
   console.log('Service worker initialized, tracking enabled:', trackingState.enabled);
 })();

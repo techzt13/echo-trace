@@ -22,7 +22,10 @@ async function loadAndRenderStats() {
     (response) => {
       if (response) {
         currentStats = response;
+        console.log('Dashboard loaded stats, tracking enabled:', response.enabled);
         renderDashboard();
+      } else {
+        console.error('Failed to load stats from background worker');
       }
     }
   );
@@ -346,7 +349,9 @@ function renderFutureEcho() {
  */
 function updateTrackingToggle() {
   const toggle = document.getElementById('trackingToggle');
-  toggle.checked = currentStats.enabled;
+  const isEnabled = currentStats.enabled === true;
+  toggle.checked = isEnabled;
+  console.log('Dashboard tracking state:', isEnabled);
 }
 
 /**
