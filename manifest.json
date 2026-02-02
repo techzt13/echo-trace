@@ -35,6 +35,6 @@
     "newtab": "newtab.html"
   },
   "content_security_policy": {
-    "extension_pages": "script-src 'self' https://cdnjs.cloudflare.com; object-src 'self'; style-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data:"
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self'; img-src 'self' data:"
   }
 }
