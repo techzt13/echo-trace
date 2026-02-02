@@ -361,98 +361,158 @@ function renderFutureEcho() {
  */
 function updateTrackingToggle() {
   const toggle = document.getElementById('trackingToggle');
+  
+  if (!toggle) {
+    console.error('ERROR: trackingToggle element not found in DOM!');
+    return;
+  }
+  
   const isEnabled = currentStats.enabled === true;
+  const oldState = toggle.checked;
   toggle.checked = isEnabled;
-  console.log('Dashboard tracking toggle updated to:', isEnabled, '(raw value:', currentStats.enabled, ')');
+  
+  console.log('updateTrackingToggle:', {
+    element: toggle.tagName,
+    enabled: currentStats.enabled,
+    disabled: toggle.disabled,
+    oldChecked: oldState,
+    newChecked: isEnabled,
+    matches: oldState === isEnabled ? 'no change' : 'CHANGED'
+  });
 }
 
 /**
  * Handle tracking toggle
  */
-document.getElementById('trackingToggle').addEventListener('change', async (e) => {
-  const enabled = e.target.checked;
-  chrome.runtime.sendMessage(
-    { action: 'toggleTracking', enabled },
-    (response) => {
-      if (chrome.runtime.lastError) {
-        console.error('Error toggling tracking:', chrome.runtime.lastError.message);
-        e.target.checked = !enabled; // Revert toggle
-        return;
-      }
-      
-      if (response && response.success) {
-        currentStats.enabled = response.enabled;
-        console.log('Tracking toggled:', enabled);
-      } else {
-        console.error('Failed to toggle tracking');
-        e.target.checked = !enabled; // Revert toggle
-      }
-    }
-  );
-});
-
-/**
- * Handle reset button
- */
-document.getElementById('resetBtn').addEventListener('click', async () => {
-  if (confirm('Are you sure? This will delete all tracked data.')) {
+function setupToggleListener() {
+  const toggle = document.getElementById('trackingToggle');
+  
+  if (!toggle) {
+    console.error('ERROR: trackingToggle element not found when setting up listener!');
+    return;
+  }
+  
+  toggle.addEventListener('change', async (e) => {
+    console.log('Toggle changed to:', e.target.checked);
+    const enabled = e.target.checked;
     chrome.runtime.sendMessage(
-      { action: 'resetData' },
+      { action: 'toggleTracking', enabled },
       (response) => {
         if (chrome.runtime.lastError) {
-          console.error('Error resetting data:', chrome.runtime.lastError.message);
-          alert('Failed to reset data. Try reloading the extension.');
+          console.error('Error toggling tracking:', chrome.runtime.lastError.message);
+          e.target.checked = !enabled; // Revert toggle
           return;
         }
         
         if (response && response.success) {
-          currentStats = {
-            dailyStats: {},
-            totalByDomain: {},
-            totalByCategory: {},
-            enabled: currentStats.enabled,
-          };
-          renderDashboard();
+          currentStats.enabled = response.enabled;
+          console.log('Tracking toggled successfully:', enabled);
         } else {
-          console.error('Failed to reset data');
-          alert('Failed to reset data.');
+          console.error('Failed to toggle tracking');
+          e.target.checked = !enabled; // Revert toggle
         }
       }
     );
+  });
+}
+
+/**
+ * Handle reset button
+ */
+function setupResetListener() {
+  const resetBtn = document.getElementById('resetBtn');
+  
+  if (!resetBtn) {
+    console.error('ERROR: resetBtn element not found when setting up listener!');
+    return;
   }
-});
+  
+  resetBtn.addEventListener('click', async () => {
+    if (confirm('Are you sure? This will delete all tracked data.')) {
+      chrome.runtime.sendMessage(
+        { action: 'resetData' },
+        (response) => {
+          if (chrome.runtime.lastError) {
+            console.error('Error resetting data:', chrome.runtime.lastError.message);
+            alert('Failed to reset data. Try reloading the extension.');
+            return;
+          }
+          
+          if (response && response.success) {
+            currentStats = {
+              dailyStats: {},
+              totalByDomain: {},
+              totalByCategory: {},
+              enabled: currentStats.enabled,
+            };
+            renderDashboard();
+          } else {
+            console.error('Failed to reset data');
+            alert('Failed to reset data.');
+          }
+        }
+      );
+    }
+  });
+}
 
 /**
  * Handle export button
  */
-document.getElementById('exportBtn').addEventListener('click', async () => {
-  const dataStr = JSON.stringify(currentStats, null, 2);
-  const dataBlob = new Blob([dataStr], { type: 'application/json' });
-  const url = URL.createObjectURL(dataBlob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `echotrace-export-${new Date().toISOString().split('T')[0]}.json`;
-  link.click();
-  URL.revokeObjectURL(url);
-});
+function setupExportListener() {
+  const exportBtn = document.getElementById('exportBtn');
+  
+  if (!exportBtn) {
+    console.error('ERROR: exportBtn element not found when setting up listener!');
+    return;
+  }
+  
+  exportBtn.addEventListener('click', async () => {
+    const dataStr = JSON.stringify(currentStats, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `echotrace-export-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    console.log('Data exported');
+  });
+}
 
 /**
  * Main render function
  */
 function renderDashboard() {
+  console.log('renderDashboard called with currentStats:', {
+    enabled: currentStats.enabled,
+    enabledType: typeof currentStats.enabled,
+    hasDailyStats: !!currentStats.dailyStats,
+    numDailyStats: Object.keys(currentStats.dailyStats || {}).length
+  });
+  
   renderStats();
   renderTopSites();
   renderCategoryChart();
   renderWeeklyChart();
   renderFutureEcho();
   updateTrackingToggle();
+  
+  console.log('renderDashboard complete');
 }
 
 /**
  * Initialize on page load
  */
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('Dashboard loaded, fetching initial stats...');
+  console.log('Dashboard DOM loaded, setting up listeners and fetching stats...');
+  
+  // Setup event listeners
+  setupToggleListener();
+  setupResetListener();
+  setupExportListener();
+  
+  // Load initial stats
   loadAndRenderStats();
   
   // Refresh stats every 5 seconds
