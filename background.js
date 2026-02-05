@@ -96,11 +96,14 @@ function categorizeDomain(domain) {
 }
 
 /**
- * Get today's date in YYYY-MM-DD format
+ * Get today's date in YYYY-MM-DD format (local timezone)
  */
 function getTodayKey() {
   const now = new Date();
-  return now.toISOString().split('T')[0];
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 /**
@@ -226,6 +229,27 @@ chrome.idle.onStateChanged.addListener(async (newState) => {
   } else if (newState === 'active') {
     console.log('User active again, resuming tracking');
     if (trackingState.currentDomain) {
+      trackingState.sessionStart = Date.now();
+    }
+  }
+});
+
+/**
+ * Track Chrome window focus changes
+ * Pauses tracking when Chrome loses focus (app switch, lid close, minimize)
+ */
+chrome.windows.onFocusChanged.addListener(async (windowId) => {
+  if (!trackingState.enabled) return;
+  
+  if (windowId === chrome.windows.WINDOW_ID_NONE) {
+    // Chrome lost focus - pause tracking
+    console.log('Chrome lost focus, pausing tracking');
+    await flushCurrentSession();
+    trackingState.sessionStart = null;
+  } else {
+    // Chrome regained focus - resume tracking if domain is set
+    if (trackingState.currentDomain) {
+      console.log('Chrome gained focus, resuming tracking');
       trackingState.sessionStart = Date.now();
     }
   }
